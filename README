@@ -1,0 +1,31 @@
+@author William Panting
+@author Adam Vessey
+
+This module is meant to describe the interface 
+for modules implementing the Islandora viewer hooks.
+It also creates an admin interface/DB entry to record settings regarding 
+what theme function to use under what conditions.
+It provides a way to detect wich viewer is selected through the admin interface.
+This functionality may be extended in the future.
+
+HOOK:
+islandora_viewers(mimetype)
+    ON NULL: return an array(mime_type=>them function)
+    ON MIMETYPE MATCH: return the them function
+    OTHERWISE: return nothing
+
+DETECT VIEWER SETTINGS:
+islandora_viewers.inc: islandora_viewers_get_viewer_theme($mime_type)
+
+EXPECTED VIEWER/THEME INTERFACE:
+theme(PID, DSID)
+    CONTENTS IN VIEWER
+
+EXAMPLES:
+
+VIEWERS:
+https://github.com/willtp87/islandora_flexpaper_viewer
+
+USERS:
+https://github.com/DGI-PackersPlus/packers_tab_module
+https://github.com/willtp87/islandora_solution_pack_pdf

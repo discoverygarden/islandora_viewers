@@ -1,0 +1,123 @@
+<?php
+/**
+ * @file: This module is meant to act as a way to configure what viewers
+ */
+
+/**
+ * The menu entries for this module.
+ * @return $menu_entries
+ *   An arrray of the items to be added to the drupal menu
+ */
+function islandora_viewers_menu() {
+  $menu_entries = array();
+  //settings associated with islandora_workflow
+  $menu_entries['admin/settings/islandora_viewers_admin'] = array(
+      'title' => 'Islandora Viewers Settings',
+      'description' => 'Here you can change various settings for the islandora_viewers module.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('islandora_viewers_admin'),
+      'access arguments' => array('administer site configuration'),
+      'type' => MENU_NORMAL_ITEM
+  );
+  return $menu_entries;
+}
+
+ /**
+  * This currently lets one create rules to determine
+  * @TODO This can be expanded later to contain viewer to content model rules.
+  * @TODO This can be expanded to contain overrides of content model rules for specific collections.
+  *
+  * @return array $form_state
+  *   the array containing the aporpriate form
+  */
+ function islandora_viewers_admin(&$form_state) {
+  module_load_include('inc', 'islandora_viewers', 'islandora_viewers');
+  $mimes_to_themes = module_invoke_all('islandora_viewers');
+
+  //$admin_form['#theme'] = 'islandora_viewers_config';
+  if ($mimes_to_themes) {
+    //get current settings
+    $current_mime_type_mapping = islandora_viewers_get_mime_type_mapping();
+    //create checkboxes with current settings
+    foreach ($mimes_to_themes as $mime_type => $theme_funtion) {
+      $admin_form['viewers'][$mime_type][$theme_funtion] = array(
+        '#type' => 'checkbox',
+        '#title' => $mime_type . '  |  ' . $theme_funtion,
+        '#default_value' => $current_mime_type_mapping[$mime_type][$theme_funtion],
+      );
+    }
+  }
+
+  $form_state['storage']['viewers'] = $mimes_to_themes;
+  $form_state['storage']['mime_state'] = $current_mime_type_mapping;
+
+  //submit button
+  $admin_form['submit'] = array(
+    '#type' => 'submit',
+    '#weight' => '1',
+    '#value' => t('Save configuration')
+  );
+
+  return $admin_form;
+ }
+
+
+ /**
+  *If there is a change from the default value and the current value then the
+  *database will be updated.
+  */
+ function islandora_viewers_admin_submit($form, &$form_state) {
+  module_load_include('inc', 'islandora_viewers', 'islandora_viewers');
+  $mimes_to_themes = $form_state['storage']['viewers'];
+  $current_mime_type_mapping = $form_state['storage']['mime_state'];
+
+  $removed_mappings = array();
+  $new_mappings = array();
+
+  //determine changes to the mimetype mapping
+  foreach($mimes_to_themes as $mime_type => $theme_function) {
+    $checkbox_value = $form_state['values'][$theme_function];
+
+    if (isset($current_mime_type_mapping[$mime_type][$theme_function]) && !$checkbox_value) {
+      $removed_mappings[$mime_type] = $theme_function;
+    }
+    elseif (!isset($current_mime_type_mapping[$mime_type][$theme_function]) && $checkbox_value) {
+      $new_mappings[$mime_type] = $theme_function;
+    }
+  }
+
+  //remove old entries
+  foreach ($removed_mappings as $mime_type => $theme_function) {
+    $query = 'DELETE FROM {islandora_viewers_mime_type_mapping}';
+    $query = $query .' WHERE mime_type="' . $mime_type . '" AND theme_function="' . $theme_function . '"';
+    db_query($query);
+  }
+  //add new entries
+  foreach ($new_mappings as $mime_type => $theme_function) {
+    $record = array(
+      'mime_type' => $mime_type,
+      'theme_function' => $theme_function
+    );
+    drupal_write_record('islandora_viewers_mime_type_mapping', $record);
+  }
+ }
+
+ /**
+  * drupal hook to show help
+  * @param $path
+  *   The path that the help is being accessed from.
+  * @return $help
+  *   The help string that will be returned to the user.
+  */
+ function islandora_viewers_help($path, $arg) {
+  $help='';//default
+
+  switch ($path) {
+   case 'admin/modules#description' :
+    $help = t('A module to assist in the configuration of Islandora Viewers.');
+   case 'admin/settings/islandora_viewers' :
+    $help = t('This is a new module, suport is still minimal.  Look at the documentation for individual content models to determine if they support Islandora Viewers.');
+   }
+
+  return $help;
+ }
