@@ -8,10 +8,27 @@ what theme function to use under what conditions.
 It provides a way to detect wich viewer is selected through the admin interface.
 This functionality may be extended in the future.
 
+DECISION DIMENSIONS FOR CHOSING A VIEWER:
+DSID (do not suggest supporting)
+PID (do not suggest supporting)
+SOLUTION_PACK_DEFAULT (would be hardcoded, or configurable in solution pack admin)
+    Solution pack dependent.
+    If the code falls through to this and it doesn't exist we should 
+MIME_TYPE (for aggregate content models this would be a unique string. 
+            Is there a convention for mime-types of distributed media?
+            multipart/vnd.islandora.content_model) 
+    implemented 
+    this is the most basic way to make the decision
+CONTENT_MODEL (can override MIME_TYPE)
+    The first dev who needs this needs to implement it.
+    This is the prefered way to make the decision in Islandora.
+COLLECTION (can override CONTENT_MODEL)
+    The first dev who needs this needs to implement it.
+
 HOOK:
 islandora_viewers(mimetype)
-    ON NULL: return an array(mime_type=>them function)
-    ON MIMETYPE MATCH: return the them function
+    ON NULL: return an array(mime_type=>theme function)
+    ON MIMETYPE MATCH: return the theme function
     OTHERWISE: return nothing
 
 DETECT VIEWER SETTINGS:
@@ -28,4 +45,3 @@ https://github.com/willtp87/islandora_flexpaper_viewer
 
 USERS:
 https://github.com/DGI-PackersPlus/packers_tab_module
-https://github.com/willtp87/islandora_solution_pack_pdf

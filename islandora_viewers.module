@@ -26,6 +26,7 @@ function islandora_viewers_menu() {
   * This currently lets one create rules to determine
   * @TODO This can be expanded later to contain viewer to content model rules.
   * @TODO This can be expanded to contain overrides of content model rules for specific collections.
+  * @TODO Make the mime type  checkboxes into radios under mimetype fieldsets
   *
   * @return array $form_state
   *   the array containing the aporpriate form
