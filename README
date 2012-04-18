@@ -7,6 +7,9 @@ It also creates an admin interface/DB entry to record settings regarding
 what theme function to use under what conditions.
 It provides a way to detect wich viewer is selected through the admin interface.
 This functionality may be extended in the future.
+A source of possible bugs is the deactivation of viewers: 
+A function should be created that viewers call on deactivation to remove any DB entry
+regarding their module.
 
 DECISION DIMENSIONS FOR CHOSING A VIEWER:
 DSID (do not suggest supporting)

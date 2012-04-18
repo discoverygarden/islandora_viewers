@@ -26,7 +26,6 @@ function islandora_viewers_menu() {
   * This currently lets one create rules to determine
   * @TODO This can be expanded later to contain viewer to content model rules.
   * @TODO This can be expanded to contain overrides of content model rules for specific collections.
-  * @TODO Make the mime type  checkboxes into radios under mimetype fieldsets
   *
   * @return array $form_state
   *   the array containing the aporpriate form
@@ -34,23 +33,31 @@ function islandora_viewers_menu() {
  function islandora_viewers_admin(&$form_state) {
   module_load_include('inc', 'islandora_viewers', 'islandora_viewers');
   $mimes_to_themes = module_invoke_all('islandora_viewers');
-
-  //$admin_form['#theme'] = 'islandora_viewers_config';
-  if ($mimes_to_themes) {
-    //get current settings
-    $current_mime_type_mapping = islandora_viewers_get_mime_type_mapping();
-    //create checkboxes with current settings
-    foreach ($mimes_to_themes as $mime_type => $theme_funtion) {
-      $admin_form['viewers'][$mime_type][$theme_funtion] = array(
-        '#type' => 'checkbox',
-        '#title' => $mime_type . '  |  ' . $theme_funtion,
-        '#default_value' => $current_mime_type_mapping[$mime_type][$theme_funtion],
-      );
+  $admin_form = array();
+  $current_mime_type_mapping = islandora_viewers_get_mime_type_mapping();
+  foreach($mimes_to_themes as $mime_type => $theme_functions) {
+    //create a normalized options array for the select regardless of number of theme functions
+    if (is_array($mimes_to_themes[$mime_type])) {
+      //don't want to change the $mimes_to_themes array
+      $options_array = $mimes_to_themes[$mime_type];
+      array_unshift($options_array, '');
     }
+    else {
+      $options_array = array('', $theme_functions);
+    }
+    //so default/return value on selects is meaningful
+    $options_array = array_combine($options_array, $options_array);
+
+    // Create mime type select.
+    $admin_form['viewers'][$mime_type] = array(
+        '#type' => 'select',
+        '#default_value' => isset($current_mime_type_mapping[$mime_type]) ? array_search($current_mime_type_mapping[$mime_type], $options_array) : '',
+        '#options' => $options_array,
+        '#title' => $mime_type,
+    );
   }
 
   $form_state['storage']['viewers'] = $mimes_to_themes;
-  $form_state['storage']['mime_state'] = $current_mime_type_mapping;
 
   //submit button
   $admin_form['submit'] = array(
@@ -66,24 +73,22 @@ function islandora_viewers_menu() {
  /**
   *If there is a change from the default value and the current value then the
   *database will be updated.
+  *@TODO optimize database updates
   */
  function islandora_viewers_admin_submit($form, &$form_state) {
   module_load_include('inc', 'islandora_viewers', 'islandora_viewers');
   $mimes_to_themes = $form_state['storage']['viewers'];
-  $current_mime_type_mapping = $form_state['storage']['mime_state'];
-
   $removed_mappings = array();
   $new_mappings = array();
 
-  //determine changes to the mimetype mapping
-  foreach($mimes_to_themes as $mime_type => $theme_function) {
-    $checkbox_value = $form_state['values'][$theme_function];
-
-    if (isset($current_mime_type_mapping[$mime_type][$theme_function]) && !$checkbox_value) {
-      $removed_mappings[$mime_type] = $theme_function;
-    }
-    elseif (!isset($current_mime_type_mapping[$mime_type][$theme_function]) && $checkbox_value) {
-      $new_mappings[$mime_type] = $theme_function;
+  //determine changes to mime type mapping
+  foreach ($mimes_to_themes as $mime_type => $theme_functions) {
+    if ($form_state['values'][$mime_type] != $form['viewers'][$mime_type]['#default_value']) {
+      $removed_mappings[$mime_type] = $form['viewers'][$mime_type]['#default_value'];
+      //don't add an empty entry
+      if ($form_state['values'][$mime_type] != '') {
+        $new_mappings[$mime_type] = $form_state['values'][$mime_type];
+      }
     }
   }
 
