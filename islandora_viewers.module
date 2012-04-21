@@ -35,7 +35,7 @@ function islandora_viewers_menu() {
   $mimes_to_themes = module_invoke_all('islandora_viewers');
   $admin_form = array();
   $current_mime_type_mapping = islandora_viewers_get_mime_type_mapping();
-  foreach($mimes_to_themes as $mime_type => $theme_functions) {
+  foreach ($mimes_to_themes as $mime_type => $theme_functions) {
     //create a normalized options array for the select regardless of number of theme functions
     if (is_array($mimes_to_themes[$mime_type])) {
       //don't want to change the $mimes_to_themes array
