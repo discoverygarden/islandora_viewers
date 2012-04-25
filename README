@@ -1,5 +1,4 @@
 @author William Panting
-@author Adam Vessey
 
 This module is meant to describe the interface 
 for modules implementing the Islandora viewer hooks.
@@ -46,5 +45,4 @@ EXAMPLES:
 VIEWERS:
 https://github.com/willtp87/islandora_flexpaper_viewer
 
-USERS:
-https://github.com/DGI-PackersPlus/packers_tab_module
+This approach is extensible to the object level: we can use it to overide an object level theme (display) such as 'Object Details'.
