@@ -46,3 +46,5 @@ VIEWERS:
 https://github.com/willtp87/islandora_flexpaper_viewer
 
 This approach is extendible to the object level: we can use it to overide an object level theme (display) such as 'Object Details'.
+It is also extendible to metadata display, though the details of a well performing implementation need to be ironed out:
+Maybe a relation on datstreams describing their schema. So the datastream would not need to be accessed more than once and not need to be passed around.
