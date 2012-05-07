@@ -37,7 +37,7 @@ DETECT VIEWER SETTINGS:
 islandora_viewers.inc: islandora_viewers_get_viewer_theme($mime_type)
 
 EXPECTED VIEWER/THEME INTERFACE:
-theme(PID, DSID)
+theme(PID, DSID) @TODO: exameine; Xhould this be the URI of datastream?
     CONTENTS IN VIEWER
 
 EXAMPLES:
