@@ -1,4 +1,4 @@
-name = islandroa_viewers
+name = Islandora Viewers
 description = For use in describing/testing islandroa_viewers. This functionality may be extended in the future.
 package = Islandora Viewers
 version = 6.x-$Format:%h$-dev
