@@ -10,7 +10,7 @@
  */
 function islandora_viewers_menu() {
   $menu_entries = array();
-  //settings associated with islandora_workflow
+  // Set what viewers to use under what curcumstances.
   $menu_entries['admin/settings/islandora_viewers_admin'] = array(
       'title' => 'Islandora Viewers Settings',
       'description' => 'Here you can change various settings for the islandora_viewers module.',
