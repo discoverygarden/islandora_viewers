@@ -33,11 +33,12 @@ function islandora_viewers_get_viewer_theme($mime_type) {
  */
 function islandora_viewers_get_mime_type_mapping() {
   $mimetype_mapping = array();
-  $query = "SELECT * FROM {islandora_viewers_mime_type_mapping}";
-  $result = db_query($query);
+  $query = db_select('islandora_viewers_mime_type_mapping', 't');
+  $query->fields('t', array());
+  $results = $query->execute();
 
-  while ($row = db_fetch_object($result)) {
-    $mimetype_mapping[$row->mime_type] = $row->theme_function;
+  foreach ($results as $result) {
+    $mimetype_mapping[$result->mime_type] = $result->theme_function;
   }
 
   return $mimetype_mapping;
