@@ -34,7 +34,7 @@ function islandora_viewers_menu() {
  * @return array
  *   The array containing the appropriate form.
  */
-function islandora_viewers_admin(&$form_state) {
+function islandora_viewers_admin($form, &$form_state) {
   module_load_include('inc', 'islandora_viewers', 'islandora_viewers');
   $mimes_to_themes = module_invoke_all('islandora_viewers');
   $admin_form = array();
@@ -99,9 +99,10 @@ function islandora_viewers_admin_submit($form, &$form_state) {
 
   // Remove old entries.
   foreach ($removed_mappings as $mime_type => $theme_function) {
-    $query = 'DELETE FROM {islandora_viewers_mime_type_mapping}';
-    $query = $query . ' WHERE mime_type="' . $mime_type . '" AND theme_function="' . $theme_function . '"';
-    db_query($query);
+    $del_query = db_delete('islandora_viewers_mime_type_mapping');
+    $del_query->condition('mime_type', $mime_type);
+    $del_query->condition('theme_function', $theme_function);
+    $del_query->execute();
   }
   // Add new entries.
   foreach ($new_mappings as $mime_type => $theme_function) {
@@ -109,7 +110,9 @@ function islandora_viewers_admin_submit($form, &$form_state) {
       'mime_type' => $mime_type,
       'theme_function' => $theme_function,
     );
-    drupal_write_record('islandora_viewers_mime_type_mapping', $record);
+    $ins_query = db_insert('islandora_viewers_mime_type_mapping');
+    $ins_query->fields($record);
+    $ins_query->execute();
   }
 }
 
