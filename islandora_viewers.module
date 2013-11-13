@@ -1,129 +1,131 @@
 <?php
+
 /**
- * @file: This module is meant to act as a way to configure what viewers
+ * @file
+ * This module is meant to act as a way to configure what viewers
  */
 
 /**
  * The menu entries for this module.
- * @return $menu_entries
- *   An arrray of the items to be added to the drupal menu
+ *
+ * @return array
+ *   An array of the items to be added to the drupal menu
  */
 function islandora_viewers_menu() {
   $menu_entries = array();
-  // Set what viewers to use under what curcumstances.
+  // Set what viewers to use under what circumstances.
   $menu_entries['admin/settings/islandora_viewers_admin'] = array(
-      'title' => 'Islandora Viewers Settings',
-      'description' => 'Here you can change various settings for the islandora_viewers module.',
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('islandora_viewers_admin'),
-      'access arguments' => array('administer site configuration'),
-      'type' => MENU_NORMAL_ITEM
+    'title' => 'Islandora Viewers Settings',
+    'description' => 'Here you can change various settings for the islandora_viewers module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_viewers_admin'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
   );
   return $menu_entries;
 }
 
- /**
-  * This currently lets one create rules to determine
-  * @TODO This can be expanded later to contain viewer to content model rules.
-  * @TODO This can be expanded to contain overrides of content model rules for specific collections.
-  *
-  * @return array $form_state
-  *   the array containing the aporpriate form
-  */
- function islandora_viewers_admin(&$form_state) {
+/**
+ * This currently lets one create rules to determine.
+ * @TODO This can be expanded later to contain viewer to content model rules.
+ * @TODO This can be expanded to contain overrides of content model rules for
+ *   specific collections.
+ *
+ * @return array
+ *   The array containing the appropriate form.
+ */
+function islandora_viewers_admin(&$form_state) {
   module_load_include('inc', 'islandora_viewers', 'islandora_viewers');
   $mimes_to_themes = module_invoke_all('islandora_viewers');
   $admin_form = array();
   $current_mime_type_mapping = islandora_viewers_get_mime_type_mapping();
   foreach ($mimes_to_themes as $mime_type => $theme_functions) {
-    //create a normalized options array for the select regardless of number of theme functions
+    // Create a normalized options array for the select regardless of number of
+    // theme functions.
     if (is_array($mimes_to_themes[$mime_type])) {
-      //don't want to change the $mimes_to_themes array
+      // Don't want to change the $mimes_to_themes array.
       $options_array = $mimes_to_themes[$mime_type];
       array_unshift($options_array, '');
     }
     else {
       $options_array = array('', $theme_functions);
     }
-    //so default/return value on selects is meaningful
+    // So default/return value on selects is meaningful.
     $options_array = array_combine($options_array, $options_array);
 
     // Create mime type select.
     $admin_form['viewers'][$mime_type] = array(
-        '#type' => 'select',
-        '#default_value' => isset($current_mime_type_mapping[$mime_type]) ? array_search($current_mime_type_mapping[$mime_type], $options_array) : '',
-        '#options' => $options_array,
-        '#title' => $mime_type,
+      '#type' => 'select',
+      '#default_value' => isset($current_mime_type_mapping[$mime_type]) ? array_search($current_mime_type_mapping[$mime_type], $options_array) : '',
+      '#options' => $options_array,
+      '#title' => $mime_type,
     );
   }
 
   $form_state['storage']['viewers'] = $mimes_to_themes;
 
-  //submit button
+  // Submit button.
   $admin_form['submit'] = array(
     '#type' => 'submit',
     '#weight' => '1',
-    '#value' => t('Save configuration')
+    '#value' => t('Save configuration'),
   );
 
   return $admin_form;
- }
+}
 
 
  /**
-  *If there is a change from the default value and the current value then the
-  *database will be updated.
-  *@TODO optimize database updates
+  * Update db if there is a change from the default value and the current value.
+  *
+  * @TODO optimize database updates
   */
- function islandora_viewers_admin_submit($form, &$form_state) {
+function islandora_viewers_admin_submit($form, &$form_state) {
   module_load_include('inc', 'islandora_viewers', 'islandora_viewers');
   $mimes_to_themes = $form_state['storage']['viewers'];
   $removed_mappings = array();
   $new_mappings = array();
 
-  //determine changes to mime type mapping
+  // Determine changes to mime type mapping.
   foreach ($mimes_to_themes as $mime_type => $theme_functions) {
     if ($form_state['values'][$mime_type] != $form['viewers'][$mime_type]['#default_value']) {
       $removed_mappings[$mime_type] = $form['viewers'][$mime_type]['#default_value'];
-      //don't add an empty entry
+      // Don't add an empty entry.
       if ($form_state['values'][$mime_type] != '') {
         $new_mappings[$mime_type] = $form_state['values'][$mime_type];
       }
     }
   }
 
-  //remove old entries
+  // Remove old entries.
   foreach ($removed_mappings as $mime_type => $theme_function) {
     $query = 'DELETE FROM {islandora_viewers_mime_type_mapping}';
-    $query = $query .' WHERE mime_type="' . $mime_type . '" AND theme_function="' . $theme_function . '"';
+    $query = $query . ' WHERE mime_type="' . $mime_type . '" AND theme_function="' . $theme_function . '"';
     db_query($query);
   }
-  //add new entries
+  // Add new entries.
   foreach ($new_mappings as $mime_type => $theme_function) {
     $record = array(
       'mime_type' => $mime_type,
-      'theme_function' => $theme_function
+      'theme_function' => $theme_function,
     );
     drupal_write_record('islandora_viewers_mime_type_mapping', $record);
   }
- }
+}
 
  /**
-  * drupal hook to show help
-  * @param $path
-  *   The path that the help is being accessed from.
-  * @return $help
-  *   The help string that will be returned to the user.
+  * Implements hook_help().
   */
- function islandora_viewers_help($path, $arg) {
-  $help='';//default
+function islandora_viewers_help($path, $arg) {
+  // Default.
+  $help = '';
 
   switch ($path) {
-   case 'admin/modules#description' :
-    $help = t('A module to assist in the configuration of Islandora Viewers.');
-   case 'admin/settings/islandora_viewers' :
-    $help = t('This is a new module, suport is still minimal.  Look at the documentation for individual content models to determine if they support Islandora Viewers.');
-   }
+    case 'admin/modules#description':
+      $help = t('A module to assist in the configuration of Islandora Viewers.');
+    case 'admin/settings/islandora_viewers':
+      $help = t('This is a new module, suport is still minimal.  Look at the documentation for individual content models to determine if they support Islandora Viewers.');
+  }
 
   return $help;
- }
+}
