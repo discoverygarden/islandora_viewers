@@ -1,15 +1,18 @@
 <?php
+
 /**
  * @file
- *   This file holds helper functions for the islandora_viewers module.
+ * This file holds helper functions for the islandora_viewers module.
+ *
  * @author
- *   William Panting
+ * William Panting
  */
 
 /**
- * This function will return the selected viewer's theme function
- * given the known parameters
- * and setting provided in this module's admin page.
+ * Returns the appropriate theme function.
+ *
+ * Function is selected according the known parameters and settings provided
+ * in this module's admin page.
  *
  * @TODO: grow as new options are added to the module's admin page
  *
@@ -26,15 +29,16 @@ function islandora_viewers_get_viewer_theme($mime_type) {
 }
 
 /**
- * This function will query the database to get the mimetype mapping
+ * This function will query the database to get the mimetype mapping.
  */
 function islandora_viewers_get_mime_type_mapping() {
   $mimetype_mapping = array();
-  $query = "SELECT * FROM {islandora_viewers_mime_type_mapping}";
-  $result = db_query($query);
+  $query = db_select('islandora_viewers_mime_type_mapping', 't');
+  $query->fields('t', array());
+  $results = $query->execute();
 
-  while ($row = db_fetch_object($result)) {
-    $mimetype_mapping[$row->mime_type] = $row->theme_function;
+  foreach ($results as $result) {
+    $mimetype_mapping[$result->mime_type] = $result->theme_function;
   }
 
   return $mimetype_mapping;

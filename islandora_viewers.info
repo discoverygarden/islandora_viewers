@@ -1,5 +1,5 @@
-name = Islandora Viewers
-description = For use in describing/testing islandroa_viewers. This functionality may be extended in the future.
+name = "Islandora Viewers"
+description = "For use in describing/testing islandora_viewers. This functionality may be extended in the future."
 package = Islandora Viewers
-version = 6.x-$Format:%h$-dev
-core = 6.x
+version = 7.x-dev
+core = 7.x

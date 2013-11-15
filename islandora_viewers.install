@@ -1,15 +1,14 @@
 <?php
+
 /**
  * @file
  * @author: William Panting
  * @date: 16/04/2012
- * This file handles setting up the database for the islandora_viewers module
+ * This file handles setting up the database for the islandora_viewers module.
  */
 
 /**
- * This function handles setting up the islandora_viewers module's database schema
- * @return $islandora_viewers_schema
- *   the associative array containing the database table(s) for islandora_viewers
+ * Implements hook_schema().
  */
 function islandora_viewers_schema() {
   $islandora_viewers_schema = array();
@@ -17,47 +16,29 @@ function islandora_viewers_schema() {
 
     'description' => 'The theme function to mime_type mapping.',
     'fields' => array(
-        'uid' => array(
+      'uid' => array(
         'description' => 'The primary identifier for an instance of a theme function to mime_type mapping.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
-        ),
-        'mime_type' => array(
-          'description' => 'The mime_type to have an association for.',
-          'type' => 'varchar',
-          'length' => 100,
-          'not null' => TRUE,
-          'default' => '',
-        ),
-        'theme_function' => array(
-          'description' => 'The theme function to associate with the mime_type',
-          'type' => 'varchar',
-          'length' => 100,
-          'not null' => TRUE,
-          'default' => '',
-        ),
+      ),
+      'mime_type' => array(
+        'description' => 'The mime_type to have an association for.',
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'theme_function' => array(
+        'description' => 'The theme function to associate with the mime_type',
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+        'default' => '',
+      ),
     ),
-  'primary key' => array('uid')
+    'primary key' => array('uid'),
   );
-
 
   return $islandora_viewers_schema;
 }
-
-/**
-* This function handles the installation of islandora_viewers
-* [just adds the schema]
- */
-function islandora_viewers_install() {
-   drupal_install_schema('islandora_viewers');
-}
-
-/**
- * This function handles removing the islandora_viewers module's
- * database schema
- */
-function islandora_viewers_uninstall() {
-  drupal_uninstall_schema('islandora_viewers');
-}
-
