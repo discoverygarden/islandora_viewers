@@ -25,7 +25,8 @@
  */
 function islandora_viewers_get_viewer_theme($mime_type) {
   $mime_type_mapping = islandora_viewers_get_mime_type_mapping();
-  return isset($mime_type_mapping[$mime_type]) ? $mime_type_mapping[$mime_type] : NULL;
+  $out = isset($mime_type_mapping[$mime_type]) ? $mime_type_mapping[$mime_type] : NULL;
+  return $out;
 }
 
 /**
